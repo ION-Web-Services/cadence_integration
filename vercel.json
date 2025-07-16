@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/refresh-tokens",
+      "schedule": "0 * * * *"
+    }
+  ],
+  "functions": {
+    "src/pages/api/cron/refresh-tokens.ts": {
+      "maxDuration": 300
+    }
+  }
+} 
