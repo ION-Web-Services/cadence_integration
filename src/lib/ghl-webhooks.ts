@@ -1,4 +1,3 @@
-import { GHLAPI } from './ghl-api';
 import { log, logError } from '@/utils/helpers';
 
 export interface GHLWebhookRegistration {
