@@ -23,8 +23,7 @@ export default function Dashboard({ installations, error }: DashboardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [registeringWebhooks, setRegisteringWebhooks] = useState<Record<string, boolean>>({});
-  const [webhookStatus, setWebhookStatus] = useState<Record<string, string>>({});
+
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,33 +53,7 @@ export default function Dashboard({ installations, error }: DashboardProps) {
     }
   };
 
-  const registerWebhook = async (userId: string, locationId: string) => {
-    const key = `${userId}-${locationId}`;
-    setRegisteringWebhooks(prev => ({ ...prev, [key]: true }));
-    setWebhookStatus(prev => ({ ...prev, [key]: '' }));
 
-    try {
-      const response = await fetch('/api/webhooks/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId, locationId }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setWebhookStatus(prev => ({ ...prev, [key]: 'Webhook registered successfully!' }));
-      } else {
-        setWebhookStatus(prev => ({ ...prev, [key]: `Error: ${result.error || result.details}` }));
-      }
-    } catch (error) {
-      setWebhookStatus(prev => ({ ...prev, [key]: `Error: ${error}` }));
-    } finally {
-      setRegisteringWebhooks(prev => ({ ...prev, [key]: false }));
-    }
-  };
 
   if (!isAuthenticated) {
     return (
@@ -242,28 +215,7 @@ export default function Dashboard({ installations, error }: DashboardProps) {
                                 </div>
                               </div>
                               
-                              <div className="mt-3 flex items-center space-x-3">
-                                <button
-                                  onClick={() => registerWebhook(installation.user_id, installation.location_id)}
-                                  disabled={registeringWebhooks[`${installation.user_id}-${installation.location_id}`]}
-                                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  {registeringWebhooks[`${installation.user_id}-${installation.location_id}`] 
-                                    ? 'Registering...' 
-                                    : 'Register Webhook'
-                                  }
-                                </button>
-                                
-                                {webhookStatus[`${installation.user_id}-${installation.location_id}`] && (
-                                  <span className={`text-xs ${
-                                    webhookStatus[`${installation.user_id}-${installation.location_id}`].includes('Error') 
-                                      ? 'text-red-600' 
-                                      : 'text-green-600'
-                                  }`}>
-                                    {webhookStatus[`${installation.user_id}-${installation.location_id}`]}
-                                  </span>
-                                )}
-                              </div>
+
                             </div>
                           </div>
                         </li>
