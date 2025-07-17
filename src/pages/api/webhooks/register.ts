@@ -3,14 +3,19 @@ import { GHLWebhooks } from '@/lib/ghl-webhooks';
 import { cadenceInstallations } from '@/lib/supabase';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('Webhook registration endpoint called with method:', req.method);
+  
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    console.log('Method not allowed:', req.method);
+    return res.status(405).json({ error: 'Method not allowed', method: req.method });
   }
 
   try {
+    console.log('Request body:', req.body);
     const { userId, locationId } = req.body;
 
     if (!userId || !locationId) {
+      console.log('Missing userId or locationId:', { userId, locationId });
       return res.status(400).json({ error: 'userId and locationId are required' });
     }
 
