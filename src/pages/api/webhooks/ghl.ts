@@ -9,8 +9,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Get the webhook payload from GoHighLevel
     const webhookData = req.body;
-    
-    console.log('Received GHL webhook:', JSON.stringify(webhookData, null, 2));
 
     // Forward the webhook to your n8n endpoint
     const n8nResponse = await fetch('https://rail.ionws.com/webhook/ghl-message-sent', {
@@ -29,8 +27,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('Failed to forward to n8n:', n8nResponse.status, n8nResponse.statusText);
       return res.status(500).json({ error: 'Failed to forward webhook' });
     }
-
-    console.log('Successfully forwarded webhook to n8n');
     
     // Return success to GoHighLevel
     return res.status(200).json({ success: true });

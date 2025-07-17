@@ -35,8 +35,6 @@ export class GHLWebhooks {
           error: `Registration failed: ${response.status} - ${JSON.stringify(data)}` 
         };
       }
-
-      console.log('Webhook registered successfully', data);
       return { 
         success: true, 
         webhookId: data.id || data.webhookId 

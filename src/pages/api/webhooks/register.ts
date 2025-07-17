@@ -13,19 +13,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).end();
   }
 
-  console.log('Webhook registration endpoint called with method:', req.method);
-  
   if (req.method !== 'POST') {
-    console.log('Method not allowed:', req.method);
-    return res.status(405).json({ error: 'Method not allowed', method: req.method });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    console.log('Request body:', req.body);
     const { userId, locationId } = req.body;
 
     if (!userId || !locationId) {
-      console.log('Missing userId or locationId:', { userId, locationId });
       return res.status(400).json({ error: 'userId and locationId are required' });
     }
 
@@ -56,8 +51,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         details: result.error 
       });
     }
-
-    console.log('Webhook registered successfully:', result.webhookId);
 
     return res.status(200).json({
       success: true,
