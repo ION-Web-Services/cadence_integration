@@ -75,12 +75,13 @@ export function sanitizeInput(input: string): string {
 // Generate installation URL for GHL marketplace
 export function generateInstallationUrl(state?: string): string {
   const clientId = process.env.GHL_CLIENT_ID;
-  const redirectUri = process.env.GHL_REDIRECT_URI;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const redirectUri = `${appUrl}/api/oauth/callback`;
   const oauthState = state || generateOAuthState();
   
   const params = new URLSearchParams({
     client_id: clientId!,
-    redirect_uri: redirectUri!,
+    redirect_uri: redirectUri,
     response_type: 'code',
     scope: 'contacts.readonly conversations.readonly locations.readonly users.readonly',
     state: oauthState
