@@ -85,7 +85,7 @@ export function generateInstallationUrl(state?: string): string {
     client_id: clientId!,
     redirect_uri: redirectUri,
     response_type: 'code',
-    scope: 'contacts.readonly conversations.readonly locations.readonly users.readonly',
+    scope: 'conversations/message.readonly saas/company.read locations.readonly users.readonly contacts.readonly conversations.readonly conversations/message.write',
     state: oauthState
   });
 
