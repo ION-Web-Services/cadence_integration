@@ -76,7 +76,9 @@ export function sanitizeInput(input: string): string {
 export function generateInstallationUrl(state?: string): string {
   const clientId = process.env.GHL_CLIENT_ID;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  const redirectUri = `${appUrl}/api/oauth/callback`;
+  // Ensure no double slashes by removing trailing slash from appUrl
+  const cleanAppUrl = appUrl?.endsWith('/') ? appUrl.slice(0, -1) : appUrl;
+  const redirectUri = `${cleanAppUrl}/api/oauth/callback`;
   const oauthState = state || generateOAuthState();
   
   const params = new URLSearchParams({
