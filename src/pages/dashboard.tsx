@@ -56,30 +56,7 @@ export default function Dashboard({ installations, error }: DashboardProps) {
 
   const registerWebhook = async (userId: string, locationId: string) => {
     const key = `${userId}-${locationId}`;
-    setRegisteringWebhooks(prev => ({ ...prev, [key]: true }));
-    setWebhookStatus(prev => ({ ...prev, [key]: '' }));
-
-    try {
-      const response = await fetch('/api/webhooks/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId, locationId }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setWebhookStatus(prev => ({ ...prev, [key]: 'Webhook registered successfully!' }));
-      } else {
-        setWebhookStatus(prev => ({ ...prev, [key]: `Error: ${result.error || result.details}` }));
-      }
-    } catch (error) {
-      setWebhookStatus(prev => ({ ...prev, [key]: `Error: ${error}` }));
-    } finally {
-      setRegisteringWebhooks(prev => ({ ...prev, [key]: false }));
-    }
+    setWebhookStatus(prev => ({ ...prev, [key]: 'Webhook registration coming soon!' }));
   };
 
   if (!isAuthenticated) {
