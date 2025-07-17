@@ -55,7 +55,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 CRON_SECRET=your_random_secret
 
 # App Settings
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=https://cadenceintegration.vercel.app
 ```
 
 ### 3. Database Setup
@@ -193,7 +193,7 @@ Update your `.env.local` for production:
 
 ```env
 GHL_REDIRECT_URI=https://yourdomain.com/api/oauth/callback
-NEXT_PUBLIC_APP_URL=https://yourdomain.com
+NEXT_PUBLIC_APP_URL=https://cadenceintegration.vercel.app
 ```
 
 ### Vercel Cron Configuration
