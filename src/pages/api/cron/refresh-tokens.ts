@@ -6,8 +6,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Only allow POST requests (Vercel cron jobs use POST)
-  if (req.method !== 'POST') {
+  // Only allow GET requests (Vercel cron jobs use GET)
+  if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 

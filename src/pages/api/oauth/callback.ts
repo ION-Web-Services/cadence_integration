@@ -98,18 +98,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Method 2: Try to get user info from GHL API v2 endpoints
-    let userInfo = await ghlAPI.getUserInfo(); // /users/me endpoint
+    // Note: Temporarily disabled due to API issues - GHL should provide these in token response
+    const userInfo = null; // await ghlAPI.getUserInfo(); // /users/me endpoint
     if (!userInfo) {
-      log('Primary user info endpoint (/users/me) failed, trying alternative');
-      userInfo = await ghlAPI.getUserInfoAlternative(); // /users endpoint
+      log('Skipping API user info calls due to endpoint issues - using fallback method');
+      // userInfo = await ghlAPI.getUserInfoAlternative(); // /users endpoint
     }
 
     // Method 3: If we have user info, use it
     if (userInfo) {
       log('Successfully retrieved user info from API', userInfo);
-      userId = userInfo.id;
-      locationId = userInfo.locationId;
-      companyId = userInfo.companyId;
+      // userId = userInfo.id;
+      // locationId = userInfo.locationId;
+      // companyId = userInfo.companyId;
       installationMethod = 'api_user_info';
     }
 

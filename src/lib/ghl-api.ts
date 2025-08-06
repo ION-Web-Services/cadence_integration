@@ -250,6 +250,7 @@ export class GHLAPI {
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${this.accessToken}`,
       'Content-Type': 'application/json',
+      'Version': '2021-07-28',
       ...options.headers,
     };
 
