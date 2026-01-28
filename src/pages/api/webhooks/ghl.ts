@@ -29,16 +29,17 @@ interface DNCResult {
 }
 
 // Check internal company blacklist
+// Swagger: GET /api/Blacklist/IsOnCompanyBlackList?phone=
+// Returns: BlacklistResponse { phoneNumber, isOnCompanyBlacklist }
 async function checkInternalBlacklist(phone: string): Promise<DNCResult> {
   try {
     const response = await fetch(
       `${DNC_API_BASE}/api/Blacklist/IsOnCompanyBlackList?phone=${encodeURIComponent(phone)}`,
       {
-        headers: { 'X-Api-Key': DNC_API_KEY }
+        headers: { 'X-API-KEY': DNC_API_KEY }
       }
     );
     const data = await response.json();
-    // API returns { isOnCompanyBlacklist: true/false }
     const isOnList = data?.isOnCompanyBlacklist === true;
     return {
       isOnList,
@@ -52,16 +53,18 @@ async function checkInternalBlacklist(phone: string): Promise<DNCResult> {
 }
 
 // Check national DNC list
+// Swagger: GET /v2/DoNotCall/IsDoNotCall?phone=&zipCode=&hasCallback=&customerId=&contactId=&isWeblead=&agentId=
+// Returns: DoNotCallResponseModelV2 { phoneNumber, contactStatus: { phoneNumber, canContact, reason, expiryDateUTC } }
 async function checkNationalDNC(phone: string): Promise<DNCResult> {
   try {
     const response = await fetch(
       `${DNC_API_BASE}/v2/DoNotCall/IsDoNotCall?phone=${encodeURIComponent(phone)}`,
       {
-        headers: { 'X-Api-Key': DNC_API_KEY }
+        headers: { 'X-API-KEY': DNC_API_KEY }
       }
     );
     const data = await response.json();
-    // API returns { contactStatus: { canContact: false, reason: "Federal DNC" } }
+    // canContact=false means they're on the DNC list, reason explains why
     const isOnList = data?.contactStatus?.canContact === false;
     return {
       isOnList,
