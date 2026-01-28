@@ -38,8 +38,10 @@ async function checkInternalBlacklist(phone: string): Promise<DNCResult> {
       }
     );
     const data = await response.json();
+    // API returns { isOnCompanyBlacklist: true/false }
+    const isOnList = data?.isOnCompanyBlacklist === true;
     return {
-      isOnList: data === true || data?.isOnList === true || data?.result === true,
+      isOnList,
       source: 'internal',
       details: data
     };
@@ -59,8 +61,10 @@ async function checkNationalDNC(phone: string): Promise<DNCResult> {
       }
     );
     const data = await response.json();
+    // API returns { contactStatus: { canContact: false, reason: "Federal DNC" } }
+    const isOnList = data?.contactStatus?.canContact === false;
     return {
-      isOnList: data === true || data?.isDoNotCall === true || data?.result === true,
+      isOnList,
       source: 'national',
       details: data
     };
