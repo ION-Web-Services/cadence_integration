@@ -77,6 +77,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (tokenResponse.companyId) {
       companyId = tokenResponse.companyId;
       log('Company ID found in OAuth token response', { companyId });
+    } else {
+      log('No companyId in token response (saas/company.read scope not requested)');
     }
 
     // Only try API calls if we didn't get the location/user info from token response
