@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { GHLAPI } from '@/lib/ghl-api';
-import { GHLWebhooks } from '@/lib/ghl-webhooks';
 import { cadenceInstallations } from '@/lib/supabase';
 import { calculateTokenExpiration, parseScopes, log, logError } from '@/utils/helpers';
 import type { OAuthCallbackQuery } from '@/types';
@@ -206,25 +205,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     log('Installation completed successfully', { userId, locationId });
 
-    // Auto-register webhook for OutboundMessage events
-    try {
-      const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/ghl`;
-      log('Registering OutboundMessage webhook', { webhookUrl, locationId });
-      
-      const webhookResult = await GHLWebhooks.registerWebhook(tokenResponse.access_token, {
-        url: webhookUrl,
-        events: ['OutboundMessage'],
-        locationId: locationId
-      });
-
-      if (webhookResult.success) {
-        log('Webhook registered successfully', { webhookId: webhookResult.webhookId });
-      } else {
-        logError('Webhook registration failed (non-blocking)', { error: webhookResult.error });
-      }
-    } catch (webhookError) {
-      logError('Webhook registration error (non-blocking)', webhookError);
-    }
+    // Webhook is configured at the GHL Marketplace app level (not per-location).
+    // OutboundMessage events are sent automatically to /api/webhooks/ghl for all installations.
 
     // Redirect to success page
     return res.redirect(`/installation-success?userId=${encodeURIComponent(userId)}&locationId=${encodeURIComponent(locationId)}`);
