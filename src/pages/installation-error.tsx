@@ -68,7 +68,7 @@ export default function InstallationError() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Installation Failed</h1>
           <p className="text-slate-400 text-lg">
-            Something went wrong during the Cadence DNC setup.
+            Something went wrong during the CadenceCRM DNC Check setup.
           </p>
         </div>
 

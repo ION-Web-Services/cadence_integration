@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { generateInstallationUrl } from '@/utils/helpers';
 
 export default function Home() {
@@ -9,17 +10,7 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-slate-700/50">
         <div className="max-w-5xl mx-auto px-6 py-5 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Cadence DNC</h1>
-              <p className="text-sm text-slate-400">by USHEALTH Group</p>
-            </div>
-          </div>
+          <Image src="/cadence-logo.jpg" alt="CadenceCRM" width={180} height={45} className="rounded" />
           <Link
             href={installationUrl}
             className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white font-medium rounded-lg transition-colors text-sm"
@@ -37,11 +28,11 @@ export default function Home() {
             GoHighLevel Marketplace App
           </div>
           <h2 className="text-4xl sm:text-5xl font-bold mb-4 leading-tight">
-            Automatic DNC Compliance<br />
-            <span className="text-emerald-400">for Every Outbound Message</span>
+            CadenceCRM<br />
+            <span className="text-emerald-400">DNC Check</span>
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
-            Cadence DNC automatically checks every outbound contact against the Federal Do Not Call list 
+            Automatically checks every outbound contact against the Federal Do Not Call list 
             and USHEALTH company blacklist — then flags and blocks non-compliant contacts in real time.
           </p>
           <Link
@@ -65,7 +56,7 @@ export default function Home() {
               </div>
               <h4 className="text-lg font-semibold mb-2">Outbound Message Sent</h4>
               <p className="text-slate-400 text-sm leading-relaxed">
-                When an agent sends an SMS or makes a call through GHL, a webhook fires automatically to Cadence DNC.
+                When an agent sends an SMS or makes a call through GHL, a webhook fires automatically to CadenceCRM DNC Check.
               </p>
             </div>
 
@@ -153,7 +144,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="border-t border-slate-700/50 py-8 text-center text-sm text-slate-500">
-          <p>Cadence DNC Integration &bull; USHEALTH Group &bull; Powered by GoHighLevel</p>
+          <p>CadenceCRM DNC Check &bull; USHEALTH Group &bull; Powered by GoHighLevel</p>
         </footer>
       </main>
     </div>

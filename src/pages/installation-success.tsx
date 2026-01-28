@@ -36,7 +36,7 @@ export default function InstallationSuccess() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Installation Complete</h1>
           <p className="text-slate-400 text-lg">
-            Cadence DNC is now active on your GHL location.
+            CadenceCRM DNC Check is now active on your GHL location.
           </p>
         </div>
 
