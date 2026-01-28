@@ -77,13 +77,40 @@ async function checkNationalDNC(phone: string): Promise<DNCResult> {
   }
 }
 
-// Update contact in GHL: set DNC and/or add tags
+// Get existing tags from a contact
+async function getExistingTags(ghlApi: GHLAPI, contactId: string): Promise<string[]> {
+  try {
+    const response = await ghlApi.makeRequest({
+      method: 'GET',
+      endpoint: `/contacts/${contactId}`
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch contact for existing tags:', { contactId, status: response.status });
+      return [];
+    }
+
+    const data = await response.json();
+    return data.contact?.tags || [];
+  } catch (error) {
+    console.error('Error fetching existing tags:', error);
+    return [];
+  }
+}
+
+// Update contact in GHL: set DND and append DNC tags (preserving existing tags)
 async function updateContactDNC(
   ghlApi: GHLAPI,
   contactId: string,
-  tags: string[]
+  newTags: string[]
 ): Promise<boolean> {
   try {
+    // Fetch existing tags so we don't overwrite them
+    const existingTags = await getExistingTags(ghlApi, contactId);
+    const mergedTags = [...new Set([...existingTags, ...newTags])];
+
+    console.log('Merging tags:', { existingTags, newTags, mergedTags });
+
     const response = await ghlApi.makeRequest({
       method: 'PUT',
       endpoint: `/contacts/${contactId}`,
@@ -93,7 +120,7 @@ async function updateContactDNC(
           SMS: { status: 'active', message: 'DNC - Do Not Contact' },
           Call: { status: 'active', message: 'DNC - Do Not Contact' }
         },
-        tags: tags
+        tags: mergedTags
       }
     });
 
@@ -107,41 +134,10 @@ async function updateContactDNC(
       return false;
     }
 
-    console.log('Contact DNC status updated successfully:', { contactId, tags });
+    console.log('Contact DNC status updated successfully:', { contactId, tags: mergedTags });
     return true;
   } catch (error) {
     console.error('Error updating contact DNC status:', error);
-    return false;
-  }
-}
-
-// Tag contact without setting DNC (for flagging only)
-async function tagContact(
-  ghlApi: GHLAPI,
-  contactId: string,
-  tags: string[]
-): Promise<boolean> {
-  try {
-    const response = await ghlApi.makeRequest({
-      method: 'PUT',
-      endpoint: `/contacts/${contactId}`,
-      data: { tags }
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Failed to tag contact:', {
-        status: response.status,
-        error: errorText,
-        contactId
-      });
-      return false;
-    }
-
-    console.log('Contact tagged successfully:', { contactId, tags });
-    return true;
-  } catch (error) {
-    console.error('Error tagging contact:', error);
     return false;
   }
 }
@@ -233,9 +229,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Step 5: If on any DNC list, update the contact in GHL
     if (isOnAnyList) {
       const tags: string[] = [];
-      if (isOnInternalList) tags.push('DNC-Internal');
-      if (isOnNationalList) tags.push('DNC-National');
-      tags.push('DNC-Flagged');
+      if (isOnInternalList) tags.push('DNC-USHEALTH');
+      if (isOnNationalList) tags.push('DNC-NATIONAL');
 
       console.log('Contact is on DNC list, updating:', { contactId, tags });
 
