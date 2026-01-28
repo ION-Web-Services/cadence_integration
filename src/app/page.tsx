@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       {/* Header */}
-      <header className="border-b border-slate-700/50">
+      <header style={{ backgroundColor: '#364050' }}>
         <div className="max-w-5xl mx-auto px-6 py-5 flex justify-between items-center">
           <Image src="/cadence-logo.jpg" alt="CadenceCRM" width={180} height={45} className="rounded" />
           <Link
