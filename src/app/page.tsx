@@ -5,239 +5,156 @@ export default function Home() {
   const installationUrl = generateInstallationUrl();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Go High Level Integration
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Multi-tenant marketplace integration with automatic token management
-              </p>
+      <header className="border-b border-slate-700/50">
+        <div className="max-w-5xl mx-auto px-6 py-5 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                href={installationUrl}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Install Integration
-              </Link>
+            <div>
+              <h1 className="text-xl font-bold">Cadence DNC</h1>
+              <p className="text-sm text-slate-400">by USHEALTH Group</p>
             </div>
           </div>
+          <Link
+            href={installationUrl}
+            className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white font-medium rounded-lg transition-colors text-sm"
+          >
+            Install App
+          </Link>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* OAuth 2.0 Flow */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      OAuth 2.0 Authentication
-                    </dt>
-                    <dd className="text-sm text-gray-900">
-                      Secure marketplace installation flow with automatic token exchange
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
+      {/* Hero */}
+      <main className="max-w-5xl mx-auto px-6">
+        <div className="py-20 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-sm mb-6">
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+            GoHighLevel Marketplace App
           </div>
-
-          {/* Multi-tenant Support */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Multi-tenant Architecture
-                    </dt>
-                    <dd className="text-sm text-gray-900">
-                      Support for 1000+ installations with isolated token management
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Automatic Token Refresh */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Automatic Token Refresh
-                    </dt>
-                    <dd className="text-sm text-gray-900">
-                      Background refresh with 5-minute buffer before expiration
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* API Proxy */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      API Proxy
-                    </dt>
-                    <dd className="text-sm text-gray-900">
-                      Dynamic endpoint routing with automatic token injection
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Error Handling */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-red-100 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Graceful Error Handling
-                    </dt>
-                    <dd className="text-sm text-gray-900">
-                      Comprehensive error handling with retry mechanisms
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Monitoring */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Monitoring & Logging
-                    </dt>
-                    <dd className="text-sm text-gray-900">
-                      Comprehensive logging and health monitoring
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* API Documentation */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">API Usage</h2>
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Making API Calls</h3>
-              <p className="text-gray-600 mb-3">
-                Use our proxy endpoint to make authenticated requests to Go High Level API:
-              </p>
-              <div className="bg-gray-100 rounded-lg p-4">
-                <code className="text-sm text-gray-800">
-                  POST /api/ghl/contacts<br/>
-                  Headers: X-User-ID: your_user_id, X-Location-ID: your_location_id<br/>
-                  Body: {"{...}"}
-            </code>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Supported Endpoints</h3>
-              <ul className="list-disc list-inside text-gray-600 space-y-1">
-                <li><code className="bg-gray-100 px-1 rounded">/api/ghl/contacts</code> - Contact management</li>
-                <li><code className="bg-gray-100 px-1 rounded">/api/ghl/conversations</code> - Conversation history</li>
-                <li><code className="bg-gray-100 px-1 rounded">/api/ghl/locations</code> - Location information</li>
-                <li><code className="bg-gray-100 px-1 rounded">/api/ghl/users</code> - User management</li>
-                <li><code className="bg-gray-100 px-1 rounded">/api/ghl/oauth</code> - OAuth operations</li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Authentication</h3>
-              <p className="text-gray-600">
-                Tokens are automatically managed and refreshed. Simply provide your <code className="bg-gray-100 px-1 rounded">user_id</code> and <code className="bg-gray-100 px-1 rounded">location_id</code> in the request headers.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Installation CTA */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-          <h2 className="text-2xl font-bold text-blue-900 mb-2">
-            Ready to Get Started?
+          <h2 className="text-4xl sm:text-5xl font-bold mb-4 leading-tight">
+            Automatic DNC Compliance<br />
+            <span className="text-emerald-400">for Every Outbound Message</span>
           </h2>
-          <p className="text-blue-800 mb-6">
-            Install the integration to start using Go High Level API with automatic token management.
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
+            Cadence DNC automatically checks every outbound contact against the Federal Do Not Call list 
+            and USHEALTH company blacklist — then flags and blocks non-compliant contacts in real time.
           </p>
           <Link
             href={installationUrl}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold rounded-lg transition-colors text-base"
           >
-            Install Integration
+            Install to Your GHL Location
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
           </Link>
         </div>
+
+        {/* How It Works */}
+        <div className="pb-20">
+          <h3 className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-10">How It Works</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+              <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-blue-400 font-bold">1</span>
+              </div>
+              <h4 className="text-lg font-semibold mb-2">Outbound Message Sent</h4>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                When an agent sends an SMS or makes a call through GHL, a webhook fires automatically to Cadence DNC.
+              </p>
+            </div>
+
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+              <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-amber-400 font-bold">2</span>
+              </div>
+              <h4 className="text-lg font-semibold mb-2">DNC Lists Checked</h4>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                The contact&apos;s phone number is checked against both the <strong className="text-slate-300">Federal DNC Registry</strong> and the <strong className="text-slate-300">USHEALTH Company Blacklist</strong> simultaneously.
+              </p>
+            </div>
+
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+              <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-red-400 font-bold">3</span>
+              </div>
+              <h4 className="text-lg font-semibold mb-2">Contact Flagged</h4>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                If the number is on any list, the contact is tagged (<strong className="text-slate-300">DNC-NATIONAL</strong> or <strong className="text-slate-300">DNC-USHEALTH</strong>) and DND is enabled to prevent further contact.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Features */}
+        <div className="pb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">
+              <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <div>
+                <h5 className="font-medium mb-1">Real-Time Checking</h5>
+                <p className="text-sm text-slate-400">Every outbound message triggers an instant DNC lookup — no manual checks needed.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">
+              <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <div>
+                <h5 className="font-medium mb-1">Dual List Coverage</h5>
+                <p className="text-sm text-slate-400">Checks both the Federal Do Not Call list and USHEALTH internal company blacklist.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">
+              <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <div>
+                <h5 className="font-medium mb-1">Auto-Tag & Block</h5>
+                <p className="text-sm text-slate-400">Flagged contacts are automatically tagged and set to Do Not Disturb in GHL.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">
+              <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <div>
+                <h5 className="font-medium mb-1">Preserves Existing Data</h5>
+                <p className="text-sm text-slate-400">Existing tags on contacts are preserved — DNC tags are added without overwriting anything.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">
+              <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <div>
+                <h5 className="font-medium mb-1">Token Auto-Refresh</h5>
+                <p className="text-sm text-slate-400">OAuth tokens are refreshed automatically every hour — zero maintenance required.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">
+              <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <div>
+                <h5 className="font-medium mb-1">Multi-Location Support</h5>
+                <p className="text-sm text-slate-400">Install once per location. Each location gets isolated token management and DNC checking.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="border-t border-slate-700/50 py-8 text-center text-sm text-slate-500">
+          <p>Cadence DNC Integration &bull; USHEALTH Group &bull; Powered by GoHighLevel</p>
+        </footer>
       </main>
     </div>
   );
