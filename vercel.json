@@ -3,11 +3,18 @@
     {
       "path": "/api/cron/refresh-tokens",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-dnc-cache",
+      "schedule": "0 3 * * 0"
     }
   ],
   "functions": {
     "src/pages/api/cron/refresh-tokens.ts": {
       "maxDuration": 300
+    },
+    "src/pages/api/cron/cleanup-dnc-cache.ts": {
+      "maxDuration": 60
     }
   }
 } 

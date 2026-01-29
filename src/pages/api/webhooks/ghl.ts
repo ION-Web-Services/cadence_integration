@@ -2,9 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { cadenceInstallations } from '@/lib/supabase';
 import { getValidAccessToken } from '@/lib/token-manager';
 import { GHLAPI } from '@/lib/ghl-api';
-
-const DNC_API_KEY = 'A542CEF7-898E-43E9-A2C3-18648BAE1A84';
-const DNC_API_BASE = 'https://leads-dnc-api.ushealthgroup.com';
+import { checkDnc } from '@/lib/dnc-checker';
 
 interface WebhookPayload {
   type: string;
@@ -22,60 +20,9 @@ interface WebhookPayload {
   timestamp: string;
 }
 
-interface DNCResult {
-  isOnList: boolean;
-  source: 'internal' | 'national';
-  details?: unknown;
-}
-
-// Check internal company blacklist
-// Swagger: GET /api/Blacklist/IsOnCompanyBlackList?phone=
-// Returns: BlacklistResponse { phoneNumber, isOnCompanyBlacklist }
-async function checkInternalBlacklist(phone: string): Promise<DNCResult> {
-  try {
-    const response = await fetch(
-      `${DNC_API_BASE}/api/Blacklist/IsOnCompanyBlackList?phone=${encodeURIComponent(phone)}`,
-      {
-        headers: { 'X-API-KEY': DNC_API_KEY }
-      }
-    );
-    const data = await response.json();
-    const isOnList = data?.isOnCompanyBlacklist === true;
-    return {
-      isOnList,
-      source: 'internal',
-      details: data
-    };
-  } catch (error) {
-    console.error('Internal blacklist check failed:', error);
-    return { isOnList: false, source: 'internal', details: { error: String(error) } };
-  }
-}
-
-// Check national DNC list
-// Swagger: GET /v2/DoNotCall/IsDoNotCall?phone=&zipCode=&hasCallback=&customerId=&contactId=&isWeblead=&agentId=
-// Returns: DoNotCallResponseModelV2 { phoneNumber, contactStatus: { phoneNumber, canContact, reason, expiryDateUTC } }
-async function checkNationalDNC(phone: string): Promise<DNCResult> {
-  try {
-    const response = await fetch(
-      `${DNC_API_BASE}/v2/DoNotCall/IsDoNotCall?phone=${encodeURIComponent(phone)}`,
-      {
-        headers: { 'X-API-KEY': DNC_API_KEY }
-      }
-    );
-    const data = await response.json();
-    // canContact=false means they're on the DNC list, reason explains why
-    const isOnList = data?.contactStatus?.canContact === false;
-    return {
-      isOnList,
-      source: 'national',
-      details: data
-    };
-  } catch (error) {
-    console.error('National DNC check failed:', error);
-    return { isOnList: false, source: 'national', details: { error: String(error) } };
-  }
-}
+// DNC tags used for flagging contacts
+const DNC_TAG_USHEALTH = 'DNC-USHEALTH';
+const DNC_TAG_NATIONAL = 'DNC-NATIONAL';
 
 // Get existing tags from a contact
 async function getExistingTags(ghlApi: GHLAPI, contactId: string): Promise<string[]> {
@@ -201,36 +148,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const contactData = await contactResponse.json();
     const phone = contactData.contact?.phone;
+    const existingTags: string[] = contactData.contact?.tags || [];
 
     if (!phone) {
       console.log('Contact has no phone number, skipping DNC check:', contactId);
       return res.status(200).json({ success: true, skipped: true, reason: 'no_phone' });
     }
 
-    console.log('Checking DNC for phone:', { contactId, phone: phone.slice(-4) });
+    // Step 4: Check if contact already has DNC tags - skip if already flagged
+    const alreadyTaggedUshealth = existingTags.includes(DNC_TAG_USHEALTH);
+    const alreadyTaggedNational = existingTags.includes(DNC_TAG_NATIONAL);
+    
+    if (alreadyTaggedUshealth && alreadyTaggedNational) {
+      console.log(JSON.stringify({
+        event: 'dnc_check',
+        phone: `***${phone.slice(-4)}`,
+        cache_status: 'skipped_tagged',
+        blacklist_cached: false,
+        national_cached: false,
+        result: { is_blacklist: true, is_national_dnc: true },
+        duration_ms: 0
+      }));
+      return res.status(200).json({ 
+        success: true, 
+        skipped: true, 
+        reason: 'already_tagged',
+        tags: [DNC_TAG_USHEALTH, DNC_TAG_NATIONAL]
+      });
+    }
 
-    // Step 4: Check both DNC lists in parallel
-    const [internalResult, nationalResult] = await Promise.all([
-      checkInternalBlacklist(phone),
-      checkNationalDNC(phone)
-    ]);
+    // Step 5: Check DNC with caching
+    const dncResult = await checkDnc(phone);
 
-    const isOnInternalList = internalResult.isOnList;
-    const isOnNationalList = nationalResult.isOnList;
-    const isOnAnyList = isOnInternalList || isOnNationalList;
+    const isOnAnyList = dncResult.isBlacklist || dncResult.isNationalDnc;
 
-    console.log('DNC check results:', {
-      contactId,
-      phone: phone.slice(-4),
-      internal: isOnInternalList,
-      national: isOnNationalList
-    });
-
-    // Step 5: If on any DNC list, update the contact in GHL
+    // Step 6: If on any DNC list, update the contact in GHL
     if (isOnAnyList) {
       const tags: string[] = [];
-      if (isOnInternalList) tags.push('DNC-USHEALTH');
-      if (isOnNationalList) tags.push('DNC-NATIONAL');
+      if (dncResult.isBlacklist) tags.push(DNC_TAG_USHEALTH);
+      if (dncResult.isNationalDnc) tags.push(DNC_TAG_NATIONAL);
 
       console.log('Contact is on DNC list, updating:', { contactId, tags });
 
@@ -241,10 +197,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         dncCheck: {
           contactId,
           isOnDNC: true,
-          internal: isOnInternalList,
-          national: isOnNationalList,
+          internal: dncResult.isBlacklist,
+          national: dncResult.isNationalDnc,
           tags,
-          contactUpdated: updated
+          contactUpdated: updated,
+          fromCache: {
+            blacklist: dncResult.blacklistFromCache,
+            national: dncResult.nationalFromCache
+          }
         }
       });
     }
@@ -257,7 +217,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         contactId,
         isOnDNC: false,
         internal: false,
-        national: false
+        national: false,
+        fromCache: {
+          blacklist: dncResult.blacklistFromCache,
+          national: dncResult.nationalFromCache
+        }
       }
     });
 

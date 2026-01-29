@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { GHLInstallation } from '@/types';
+import type { GHLInstallation, DncCacheEntry } from '@/types';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -24,6 +24,7 @@ export const supabaseAdmin = createClient(
 // Database table names
 export const CADENCE_INSTALLATIONS_TABLE = 'cadence_installations';
 export const MESSAGE_QUEUE_TABLE = 'message_queue';
+export const CADENCE_DNC_CACHE_TABLE = 'cadence_dnc_cache';
 
 // Helper functions for Cadence installations
 export const cadenceInstallations = {
@@ -306,6 +307,186 @@ export const messageQueue = {
     } catch (error) {
       console.error('Error fetching queue stats:', error);
       return { pending: 0, processed: 0, failed: 0, total: 0 };
+    }
+  }
+};
+
+// Helper functions for DNC Cache
+export const dncCache = {
+  // Get cached DNC result by phone number
+  async get(phone: string): Promise<DncCacheEntry | null> {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from(CADENCE_DNC_CACHE_TABLE)
+        .select('*')
+        .eq('phone', phone)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No rows found - not an error, just cache miss
+          return null;
+        }
+        console.error('Error fetching DNC cache:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching DNC cache:', error);
+      return null;
+    }
+  },
+
+  // Upsert DNC cache entry (insert or update)
+  async upsert(entry: Omit<DncCacheEntry, 'id' | 'created_at' | 'updated_at'>): Promise<boolean> {
+    try {
+      const { error } = await supabaseAdmin
+        .from(CADENCE_DNC_CACHE_TABLE)
+        .upsert(
+          {
+            ...entry,
+            updated_at: new Date().toISOString()
+          },
+          {
+            onConflict: 'phone'
+          }
+        );
+
+      if (error) {
+        console.error('Error upserting DNC cache:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error upserting DNC cache:', error);
+      return false;
+    }
+  },
+
+  // Update only blacklist fields
+  async updateBlacklist(phone: string, isOnBlacklist: boolean): Promise<boolean> {
+    try {
+      const { error } = await supabaseAdmin
+        .from(CADENCE_DNC_CACHE_TABLE)
+        .upsert(
+          {
+            phone,
+            is_company_blacklist: isOnBlacklist,
+            blacklist_checked_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            onConflict: 'phone'
+          }
+        );
+
+      if (error) {
+        console.error('Error updating blacklist cache:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error updating blacklist cache:', error);
+      return false;
+    }
+  },
+
+  // Update only national DNC fields
+  async updateNational(
+    phone: string,
+    isOnNational: boolean,
+    reason?: string,
+    expiry?: string
+  ): Promise<boolean> {
+    try {
+      const { error } = await supabaseAdmin
+        .from(CADENCE_DNC_CACHE_TABLE)
+        .upsert(
+          {
+            phone,
+            is_national_dnc: isOnNational,
+            national_dnc_reason: reason || null,
+            national_dnc_expiry: expiry || null,
+            national_checked_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            onConflict: 'phone'
+          }
+        );
+
+      if (error) {
+        console.error('Error updating national DNC cache:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error updating national DNC cache:', error);
+      return false;
+    }
+  },
+
+  // Delete old cache entries (for cleanup cron)
+  async deleteOldEntries(olderThanDays: number = 30): Promise<number> {
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
+      const cutoffISO = cutoffDate.toISOString();
+
+      const { data, error } = await supabaseAdmin
+        .from(CADENCE_DNC_CACHE_TABLE)
+        .delete()
+        .lt('blacklist_checked_at', cutoffISO)
+        .lt('national_checked_at', cutoffISO)
+        .select('id');
+
+      if (error) {
+        console.error('Error deleting old DNC cache entries:', error);
+        return 0;
+      }
+
+      return data?.length || 0;
+    } catch (error) {
+      console.error('Error deleting old DNC cache entries:', error);
+      return 0;
+    }
+  },
+
+  // Get cache statistics
+  async getStats(): Promise<{
+    total: number;
+    blacklisted: number;
+    nationalDnc: number;
+  }> {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from(CADENCE_DNC_CACHE_TABLE)
+        .select('is_company_blacklist, is_national_dnc');
+
+      if (error) {
+        console.error('Error fetching DNC cache stats:', error);
+        return { total: 0, blacklisted: 0, nationalDnc: 0 };
+      }
+
+      const stats = {
+        total: data?.length || 0,
+        blacklisted: 0,
+        nationalDnc: 0
+      };
+
+      data?.forEach(item => {
+        if (item.is_company_blacklist) stats.blacklisted++;
+        if (item.is_national_dnc) stats.nationalDnc++;
+      });
+
+      return stats;
+    } catch (error) {
+      console.error('Error fetching DNC cache stats:', error);
+      return { total: 0, blacklisted: 0, nationalDnc: 0 };
     }
   }
 };

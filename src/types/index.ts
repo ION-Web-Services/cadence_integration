@@ -79,3 +79,39 @@ export interface InstallationStatus {
   expires_at?: string;
   scopes?: string[];
 }
+
+// DNC Cache Types
+export interface DncCacheEntry {
+  id?: string;
+  phone: string;
+  is_company_blacklist: boolean;
+  blacklist_checked_at: string | null;
+  is_national_dnc: boolean;
+  national_dnc_reason: string | null;
+  national_dnc_expiry: string | null;
+  national_checked_at: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface DncCheckResult {
+  isBlacklist: boolean;
+  isNationalDnc: boolean;
+  nationalDncReason?: string;
+  nationalDncExpiry?: string;
+  blacklistFromCache: boolean;
+  nationalFromCache: boolean;
+}
+
+export interface DncCheckLog {
+  event: 'dnc_check';
+  phone: string; // Last 4 digits only
+  cache_status: 'hit' | 'partial' | 'miss' | 'skipped_tagged';
+  blacklist_cached: boolean;
+  national_cached: boolean;
+  result: {
+    is_blacklist: boolean;
+    is_national_dnc: boolean;
+  };
+  duration_ms: number;
+}

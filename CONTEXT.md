@@ -17,7 +17,9 @@ A GHL (Go High Level) Marketplace app that intercepts outbound messages and chec
 1. App installs into a GHL location via OAuth
 2. Installation tokens stored in Supabase `cadence_installations` table
 3. GHL sends `OutboundMessage` webhook to `/api/webhooks/ghl`
-4. Webhook fetches contact phone from GHL, checks against two lists in parallel:
+4. Webhook checks if contact already has DNC tags — skips if already flagged
+5. Webhook checks `cadence_dnc_cache` table for cached results (12h TTL by default)
+6. If cache miss/stale, fetches contact phone from GHL, checks against two lists:
    - **Company Blacklist:** `GET /api/Blacklist/IsOnCompanyBlackList?phone=` → `{ phoneNumber, isOnCompanyBlacklist }`
    - **National DNC:** `GET /v2/DoNotCall/IsDoNotCall?phone=` → `{ phoneNumber, contactStatus: { canContact, reason, expiryDateUTC } }`
 5. If flagged:
@@ -71,10 +73,12 @@ A GHL (Go High Level) Marketplace app that intercepts outbound messages and chec
 - `src/pages/api/webhooks/ghl.ts` — Main webhook handler (DNC check + contact update)
 - `src/pages/api/oauth/callback.ts` — OAuth install flow
 - `src/pages/api/cron/refresh-tokens.ts` — Hourly token refresh
+- `src/pages/api/cron/cleanup-dnc-cache.ts` — Weekly cache cleanup (Sundays 3am)
 - `src/pages/api/ghl/[...endpoint].ts` — API proxy
 - `src/lib/ghl-api.ts` — GHL API wrapper (Version header: 2021-07-28)
 - `src/lib/token-manager.ts` — Token refresh logic
-- `src/lib/supabase.ts` — Database operations (cadence_installations + message_queue tables)
+- `src/lib/supabase.ts` — Database operations (cadence_installations, cadence_dnc_cache, message_queue tables)
+- `src/lib/dnc-checker.ts` — DNC check with caching logic
 - `src/types/index.ts` — TypeScript interfaces
 - `src/utils/helpers.ts` — Utilities (scopes, token expiry, install URL generation)
 - `public/cadence-logo.jpg` — CadenceCRM logo
@@ -84,6 +88,8 @@ A GHL (Go High Level) Marketplace app that intercepts outbound messages and chec
 - NEXT_PUBLIC_APP_URL (https://cadenceintegration.vercel.app)
 - NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 - CRON_SECRET
+- DNC_CACHE_TTL_BLACKLIST_HOURS (default: 12) — Cache TTL for company blacklist checks
+- DNC_CACHE_TTL_NATIONAL_HOURS (default: 12) — Cache TTL for national DNC checks
 
 ## Resolved Issues
 - ✅ Next.js CVE-2025-66478 — upgraded 15.4.1 → 15.5.10
@@ -102,7 +108,16 @@ A GHL (Go High Level) Marketplace app that intercepts outbound messages and chec
 - GHL API version upgrade (currently using 2021-07-28)
 - Contact center integration via `/api/DoNotCall/contactcenter`
 
-## Recent Changes (Jan 28, 2026)
+## Recent Changes (Jan 29, 2026)
+- Implemented DNC check caching with configurable TTLs
+- New `cadence_dnc_cache` table stores check results per phone
+- Separate TTLs for blacklist (12h default) and national DNC (12h default)
+- Skip DNC check entirely if contact already has DNC tags
+- Added structured JSON logging for cache hit/miss monitoring
+- Added weekly cache cleanup cron job (Sundays 3am)
+- New env vars: `DNC_CACHE_TTL_BLACKLIST_HOURS`, `DNC_CACHE_TTL_NATIONAL_HOURS`
+
+## Changes (Jan 28, 2026)
 - Upgraded Next.js 15.4.1 → 15.5.10 (CVE fix)
 - Replaced n8n forwarding with direct DNC API checks
 - Fixed DNC response parsing + API key header casing
