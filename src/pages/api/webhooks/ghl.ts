@@ -7,18 +7,27 @@ import { checkDnc } from '@/lib/dnc-checker';
 interface WebhookPayload {
   type: string;
   locationId: string;
-  contactId: string;
-  conversationId: string;
-  body: string;
-  direction: string;
-  messageType: string;
-  userId: string;
-  messageId: string;
-  status: string;
-  source: string;
-  dateAdded: string;
-  timestamp: string;
+  contactId?: string;
+  id?: string; // ContactCreate uses 'id' instead of 'contactId'
+  conversationId?: string;
+  body?: string;
+  direction?: string;
+  messageType?: string;
+  userId?: string;
+  messageId?: string;
+  status?: string;
+  source?: string;
+  dateAdded?: string;
+  timestamp?: string;
+  phone?: string; // ContactCreate includes phone directly
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  tags?: string[];
 }
+
+// Supported webhook event types
+const SUPPORTED_EVENTS = ['OutboundMessage', 'ContactCreate'];
 
 // DNC tags used for flagging contacts
 const DNC_TAG_USHEALTH = 'DNC-USHEALTH';
@@ -97,24 +106,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const webhookData = req.body as WebhookPayload;
 
-    // Only process OutboundMessage events
-    if (webhookData.type !== 'OutboundMessage') {
-      console.log('Ignoring non-OutboundMessage webhook:', webhookData.type);
+    // Only process supported event types
+    if (!SUPPORTED_EVENTS.includes(webhookData.type)) {
+      console.log('Ignoring unsupported webhook type:', webhookData.type);
       return res.status(200).json({ success: true, skipped: true });
     }
 
-    const { locationId, contactId, userId } = webhookData;
+    // ContactCreate uses 'id' instead of 'contactId'
+    const contactId = webhookData.contactId || webhookData.id;
+    const { locationId, userId } = webhookData;
 
     if (!locationId || !contactId) {
       console.error('Missing required fields:', { locationId, contactId });
       return res.status(400).json({ error: 'Missing locationId or contactId' });
     }
 
-    console.log('Processing OutboundMessage DNC check:', {
+    console.log(`Processing ${webhookData.type} DNC check:`, {
       locationId,
       contactId,
       userId,
-      messageType: webhookData.messageType
+      eventType: webhookData.type,
+      ...(webhookData.type === 'OutboundMessage' ? { messageType: webhookData.messageType } : {})
     });
 
     // Step 1: Get installation from Supabase to find the access token
@@ -134,21 +146,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ success: true, skipped: true, reason: 'no_token' });
     }
 
-    // Step 3: Get contact details from GHL to get phone number
+    // Step 3: Get contact details - ContactCreate includes phone directly, others need API call
     const ghlApi = new GHLAPI(accessToken);
-    const contactResponse = await ghlApi.makeRequest({
-      method: 'GET',
-      endpoint: `/contacts/${contactId}`
-    });
+    let phone: string | undefined;
+    let existingTags: string[] = [];
 
-    if (!contactResponse.ok) {
-      console.error('Failed to fetch contact:', { contactId, status: contactResponse.status });
-      return res.status(200).json({ success: true, skipped: true, reason: 'contact_fetch_failed' });
+    if (webhookData.type === 'ContactCreate' && webhookData.phone) {
+      // ContactCreate includes phone directly, no need for extra API call
+      phone = webhookData.phone;
+      existingTags = webhookData.tags || [];
+      console.log('Using phone from ContactCreate webhook:', { contactId, phone: `***${phone.slice(-4)}` });
+    } else {
+      // Fetch contact details from GHL
+      const contactResponse = await ghlApi.makeRequest({
+        method: 'GET',
+        endpoint: `/contacts/${contactId}`
+      });
+
+      if (!contactResponse.ok) {
+        console.error('Failed to fetch contact:', { contactId, status: contactResponse.status });
+        return res.status(200).json({ success: true, skipped: true, reason: 'contact_fetch_failed' });
+      }
+
+      const contactData = await contactResponse.json();
+      phone = contactData.contact?.phone;
+      existingTags = contactData.contact?.tags || [];
     }
-
-    const contactData = await contactResponse.json();
-    const phone = contactData.contact?.phone;
-    const existingTags: string[] = contactData.contact?.tags || [];
 
     if (!phone) {
       console.log('Contact has no phone number, skipping DNC check:', contactId);
