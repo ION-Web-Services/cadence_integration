@@ -15,7 +15,7 @@ export default function Home() {
             href={installationUrl}
             className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white font-medium rounded-lg transition-colors text-sm"
           >
-            Install App
+            Add to your GHL
           </Link>
         </div>
       </header>
@@ -32,14 +32,14 @@ export default function Home() {
             <span className="text-emerald-400">DNC Check</span>
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
-            Automatically checks every outbound contact against the Federal Do Not Call list 
-            and USHEALTH company blacklist — then flags and blocks non-compliant contacts in real time.
+            Automatically checks new contacts and outbound messages against the Federal Do Not Call list 
+            and USHEALTH company blacklist — flagging and blocking non-compliant contacts in real time.
           </p>
           <Link
             href={installationUrl}
             className="inline-flex items-center gap-2 px-8 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold rounded-lg transition-colors text-base"
           >
-            Install to Your GHL Location
+            Add to your GHL
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
@@ -49,20 +49,30 @@ export default function Home() {
         {/* How It Works */}
         <div className="pb-20">
           <h3 className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-10">How It Works</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-purple-400 font-bold">1</span>
+              </div>
+              <h4 className="text-lg font-semibold mb-2">Contact Created</h4>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                The moment a new contact is added to GHL — whether manually or via import — a webhook fires and DNC checks run immediately.
+              </p>
+            </div>
+
             <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
               <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-blue-400 font-bold">1</span>
+                <span className="text-blue-400 font-bold">2</span>
               </div>
               <h4 className="text-lg font-semibold mb-2">Outbound Message Sent</h4>
               <p className="text-slate-400 text-sm leading-relaxed">
-                When an agent sends an SMS or makes a call through GHL, a webhook fires automatically to CadenceCRM DNC Check.
+                When an agent sends an SMS or makes a call, DNC checks also run — catching any contacts that slipped through or were added before the app was installed.
               </p>
             </div>
 
             <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
               <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-amber-400 font-bold">2</span>
+                <span className="text-amber-400 font-bold">3</span>
               </div>
               <h4 className="text-lg font-semibold mb-2">DNC Lists Checked</h4>
               <p className="text-slate-400 text-sm leading-relaxed">
@@ -72,7 +82,7 @@ export default function Home() {
 
             <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
               <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-red-400 font-bold">3</span>
+                <span className="text-red-400 font-bold">4</span>
               </div>
               <h4 className="text-lg font-semibold mb-2">Contact Flagged</h4>
               <p className="text-slate-400 text-sm leading-relaxed">
@@ -90,8 +100,17 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               <div>
-                <h5 className="font-medium mb-1">Real-Time Checking</h5>
-                <p className="text-sm text-slate-400">Every outbound message triggers an instant DNC lookup — no manual checks needed.</p>
+                <h5 className="font-medium mb-1">Check on Contact Create</h5>
+                <p className="text-sm text-slate-400">New contacts are checked instantly the moment they&apos;re added — flag DNC before any outreach happens.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">
+              <svg className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <div>
+                <h5 className="font-medium mb-1">Check on Outbound Message</h5>
+                <p className="text-sm text-slate-400">Every outbound SMS or call triggers a DNC lookup — catches contacts added before the app was installed.</p>
               </div>
             </div>
             <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">

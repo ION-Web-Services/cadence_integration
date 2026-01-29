@@ -16,10 +16,12 @@ A GHL (Go High Level) Marketplace app that intercepts outbound messages and chec
 ## How It Works
 1. App installs into a GHL location via OAuth
 2. Installation tokens stored in Supabase `cadence_installations` table
-3. GHL sends `OutboundMessage` webhook to `/api/webhooks/ghl`
+3. GHL sends webhooks to `/api/webhooks/ghl` for two event types:
+   - **ContactCreate** — fires when a new contact is added (manual, import, or API)
+   - **OutboundMessage** — fires when an agent sends SMS or makes a call
 4. Webhook checks if contact already has DNC tags — skips if already flagged
 5. Webhook checks `cadence_dnc_cache` table for cached results (12h TTL by default)
-6. If cache miss/stale, fetches contact phone from GHL, checks against two lists:
+6. If cache miss/stale, fetches contact phone from GHL (or uses phone from ContactCreate payload), checks against two lists:
    - **Company Blacklist:** `GET /api/Blacklist/IsOnCompanyBlackList?phone=` → `{ phoneNumber, isOnCompanyBlacklist }`
    - **National DNC:** `GET /v2/DoNotCall/IsDoNotCall?phone=` → `{ phoneNumber, contactStatus: { canContact, reason, expiryDateUTC } }`
 5. If flagged:
@@ -109,6 +111,10 @@ A GHL (Go High Level) Marketplace app that intercepts outbound messages and chec
 - Contact center integration via `/api/DoNotCall/contactcenter`
 
 ## Recent Changes (Jan 29, 2026)
+- **Added ContactCreate webhook support** — DNC check runs instantly when new contacts are added
+  - Catches DNC contacts before any outreach happens
+  - Uses phone directly from webhook payload (saves an API call)
+  - Works alongside OutboundMessage checks for full coverage
 - Implemented DNC check caching with configurable TTLs
 - New `cadence_dnc_cache` table stores check results per phone
 - Separate TTLs for blacklist (12h default) and national DNC (12h default)
@@ -116,6 +122,7 @@ A GHL (Go High Level) Marketplace app that intercepts outbound messages and chec
 - Added structured JSON logging for cache hit/miss monitoring
 - Added weekly cache cleanup cron job (Sundays 3am)
 - New env vars: `DNC_CACHE_TTL_BLACKLIST_HOURS`, `DNC_CACHE_TTL_NATIONAL_HOURS`
+- Updated landing page with new features and "Add to your GHL" button
 
 ## Changes (Jan 28, 2026)
 - Upgraded Next.js 15.4.1 → 15.5.10 (CVE fix)
