@@ -33,7 +33,7 @@ export default function Home() {
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
             Automatically checks new contacts and outbound messages against the Federal Do Not Call list 
-            and USHEALTH company blacklist — flagging and blocking non-compliant contacts in real time.
+            and your company&apos;s internal blacklist — flagging and blocking non-compliant contacts in real time.
           </p>
           <Link
             href={installationUrl}
@@ -76,7 +76,7 @@ export default function Home() {
               </div>
               <h4 className="text-lg font-semibold mb-2">DNC Lists Checked</h4>
               <p className="text-slate-400 text-sm leading-relaxed">
-                The contact&apos;s phone number is checked against both the <strong className="text-slate-300">Federal DNC Registry</strong> and the <strong className="text-slate-300">USHEALTH Company Blacklist</strong> simultaneously.
+                The contact&apos;s phone number is checked against both the <strong className="text-slate-300">Federal DNC Registry</strong> and your <strong className="text-slate-300">Company Blacklist</strong> simultaneously.
               </p>
             </div>
 
@@ -86,7 +86,7 @@ export default function Home() {
               </div>
               <h4 className="text-lg font-semibold mb-2">Contact Flagged</h4>
               <p className="text-slate-400 text-sm leading-relaxed">
-                If the number is on any list, the contact is tagged (<strong className="text-slate-300">DNC-NATIONAL</strong> or <strong className="text-slate-300">DNC-USHEALTH</strong>) and DND is enabled to prevent further contact.
+                If the number is on any list, the contact is tagged (<strong className="text-slate-300">DNC-NATIONAL</strong> or <strong className="text-slate-300">DNC-COMPANY</strong>) and DND is enabled to prevent further contact.
               </p>
             </div>
           </div>
@@ -119,7 +119,7 @@ export default function Home() {
               </svg>
               <div>
                 <h5 className="font-medium mb-1">Dual List Coverage</h5>
-                <p className="text-sm text-slate-400">Checks both the Federal Do Not Call list and USHEALTH internal company blacklist.</p>
+                <p className="text-sm text-slate-400">Checks both the Federal Do Not Call list and your company&apos;s internal blacklist.</p>
               </div>
             </div>
             <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">
@@ -163,7 +163,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="border-t border-slate-700/50 py-8 text-center text-sm text-slate-500">
-          <p>CadenceCRM DNC Check &bull; USHEALTH Group &bull; Powered by GoHighLevel</p>
+          <p>CadenceCRM DNC Check &bull; Powered by GoHighLevel</p>
         </footer>
       </main>
     </div>
