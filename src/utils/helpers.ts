@@ -92,6 +92,27 @@ export function generateInstallationUrl(state?: string): string {
   return `https://marketplace.gohighlevel.com/oauth/chooselocation?${params.toString()}`;
 }
 
+// Decode a GHL access token's JWT payload (no signature verification —
+// used only to read authClass/authClassId from tokens GHL just issued us)
+export function decodeTokenPayload(accessToken: string): {
+  authClass?: string;
+  authClassId?: string;
+} {
+  try {
+    const segment = accessToken.split('.')[1];
+    if (!segment) return {};
+    const padded = segment.replace(/-/g, '+').replace(/_/g, '/');
+    const json = Buffer.from(padded, 'base64').toString('utf8');
+    const payload = JSON.parse(json);
+    return {
+      authClass: typeof payload.authClass === 'string' ? payload.authClass : undefined,
+      authClassId: typeof payload.authClassId === 'string' ? payload.authClassId : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
 // Log utility for debugging
 export function log(message: string, data?: unknown): void {
   if (process.env.NODE_ENV === 'development') {

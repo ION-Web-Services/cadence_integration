@@ -23,6 +23,10 @@ export class GHLAPI {
           client_secret: process.env.GHL_CLIENT_SECRET!,
           grant_type: 'authorization_code',
           code: code,
+          // Request a sub-account token so the response carries locationId;
+          // without this GHL can return an agency (Company) token that can't
+          // call location APIs
+          user_type: 'Location',
           redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL?.endsWith('/') ? process.env.NEXT_PUBLIC_APP_URL.slice(0, -1) : process.env.NEXT_PUBLIC_APP_URL}/api/oauth/callback`,
         }),
       });
