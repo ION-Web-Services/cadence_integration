@@ -2,11 +2,15 @@
   "crons": [
     {
       "path": "/api/cron/refresh-tokens",
-      "schedule": "0 * * * *"
+      "schedule": "0 */12 * * *"
     },
     {
       "path": "/api/cron/cleanup-dnc-cache",
       "schedule": "0 3 * * 0"
+    },
+    {
+      "path": "/api/cron/reconcile-dnc",
+      "schedule": "15 * * * *"
     }
   ],
   "functions": {
@@ -15,6 +19,9 @@
     },
     "src/pages/api/cron/cleanup-dnc-cache.ts": {
       "maxDuration": 60
+    },
+    "src/pages/api/cron/reconcile-dnc.ts": {
+      "maxDuration": 300
     }
   }
 } 

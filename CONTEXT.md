@@ -110,6 +110,30 @@ A GHL (Go High Level) Marketplace app that intercepts outbound messages and chec
 - GHL API version upgrade (currently using 2021-07-28)
 - Contact center integration via `/api/DoNotCall/contactcenter`
 
+## Recent Changes (Jul 9, 2026) — Consent & Opt-In System (Phase 1)
+Full design in `DNC_CONSENT_PLAN.md`. Fixes "contact reached out but agent can't reply":
+- **InboundMessage webhook** now handled. A blocked contact texting/calling in triggers:
+  1. System sends a fixed opt-in request ("reply YES to confirm...") — template not agent-editable
+  2. A single-use **reply window** opens (default 24h) on the channel the contact used, so the
+     agent can send ONE custom reply; the OutboundMessage webhook consumes it and re-blocks
+  3. Contact replying **YES** grants documented express consent (default 90 days) → unlocked
+  4. **STOP** = permanent opt-out, overrides everything
+- **Decision engine** (`src/lib/dnc-decision.ts`): opt-out > consent > reply window > blacklist >
+  national DNC > clean. All handlers recompute state through it — tags are outputs, never inputs,
+  so agents cannot unlock anything via tags.
+- Blacklist YES defaults to `awaiting_review` (BLACKLIST_OPTIN_MODE=review) + NOTIFY_WEBHOOK_URL ping.
+- New hourly cron `/api/cron/reconcile-dnc` (:15) expires opt-ins/windows/consents and re-blocks.
+- New tables (all RLS-enabled, service-role only): `cadence_consent_events`, `cadence_optin_requests`,
+  `cadence_consents`, `cadence_reply_windows`, `cadence_optouts`, `cadence_contact_dnc_state`,
+  `cadence_dnc_audit` (migration `003_create_dnc_consent_tables.sql`, applied Jul 9 2026)
+- New tags: `DNC-REPLY-WINDOW` (agent has one reply), `DNC-OPTIN-CONFIRMED` (consent active)
+- New env vars (all optional, defaults shown): OPTIN_WINDOW_HOURS=48, REPLY_WINDOW_HOURS=24,
+  REPLY_WINDOWS_MAX=5, OPTIN_COOLDOWN_DAYS=30, CONSENT_DURATION_DAYS=90,
+  BLACKLIST_OPTIN_MODE=review, NOTIFY_WEBHOOK_URL
+- Opt-in message identifies the sender by GHL location name only (no company name)
+- **Marketplace requirement:** `InboundMessage` webhook event must be enabled in the GHL
+  marketplace app settings (alongside OutboundMessage + ContactCreate). No new scopes needed.
+
 ## Recent Changes (Jan 29, 2026)
 - **Added ContactCreate webhook support** — DNC check runs instantly when new contacts are added
   - Catches DNC contacts before any outreach happens

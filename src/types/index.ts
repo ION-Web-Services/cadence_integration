@@ -103,6 +103,64 @@ export interface DncCheckResult {
   nationalFromCache: boolean;
 }
 
+// DNC Consent & Opt-in Types
+export type DncChannel = 'sms' | 'call';
+
+export interface OptinRequest {
+  id: string;
+  location_id: string;
+  contact_id: string;
+  phone: string;
+  trigger: 'national' | 'blacklist';
+  status: 'sending' | 'pending' | 'confirmed' | 'expired' | 'failed' | 'awaiting_review' | 'approved' | 'denied';
+  sent_message_id: string | null;
+  sent_at: string | null;
+  expires_at: string;
+  response_message_id: string | null;
+  responded_at: string | null;
+  created_at?: string;
+}
+
+export interface ConsentGrant {
+  id: string;
+  location_id: string;
+  contact_id: string;
+  phone: string;
+  source: 'optin_yes' | 'admin_approved';
+  optin_request_id: string | null;
+  granted_at: string;
+  expires_at: string;
+  revoked_at: string | null;
+  revoke_reason: string | null;
+}
+
+export interface ReplyWindow {
+  id: string;
+  location_id: string;
+  contact_id: string;
+  phone: string;
+  optin_request_id: string | null;
+  channel: DncChannel;
+  opened_by_message_id: string;
+  status: 'open' | 'used' | 'expired' | 'closed';
+  used_by_message_id: string | null;
+  expires_at: string;
+  created_at?: string;
+}
+
+export interface ContactConsentState {
+  optedOut: boolean;
+  activeConsent: ConsentGrant | null;
+  openWindow: ReplyWindow | null;
+  pendingOptin: OptinRequest | null;
+}
+
+export interface DncDecision {
+  smsBlocked: boolean;
+  callBlocked: boolean;
+  reason: string;
+}
+
 export interface DncCheckLog {
   event: 'dnc_check';
   phone: string; // Last 4 digits only
