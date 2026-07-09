@@ -80,6 +80,24 @@ export const consentEvents = {
       return 'error';
     }
   },
+
+  // Prune routine inbound events; YES confirmations are consent evidence and
+  // are kept forever
+  async pruneOld(days: number): Promise<number> {
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    const { data, error } = await supabaseAdmin
+      .from(CONSENT_EVENTS_TABLE)
+      .delete()
+      .lt('occurred_at', cutoff)
+      .neq('event_type', 'optin_confirmed')
+      .select('id');
+
+    if (error) {
+      console.error('Error pruning consent events:', error);
+      return 0;
+    }
+    return data?.length || 0;
+  },
 };
 
 // --- Opt-in requests ---
@@ -475,6 +493,21 @@ export const dncAudit = {
     if (error) {
       console.error('Error writing DNC audit entry:', error);
     }
+  },
+
+  async pruneOld(days: number): Promise<number> {
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    const { data, error } = await supabaseAdmin
+      .from(DNC_AUDIT_TABLE)
+      .delete()
+      .lt('created_at', cutoff)
+      .select('id');
+
+    if (error) {
+      console.error('Error pruning audit entries:', error);
+      return 0;
+    }
+    return data?.length || 0;
   },
 };
 

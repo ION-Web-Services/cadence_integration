@@ -36,12 +36,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const nowIso = new Date().toISOString();
-    const installations = await cadenceInstallations.getAll();
     const apiCache = new Map<string, GHLAPI | null>();
 
     async function apiForLocation(locationId: string): Promise<GHLAPI | null> {
       if (apiCache.has(locationId)) return apiCache.get(locationId) || null;
-      const installation = installations.find(i => i.location_id === locationId && i.is_active);
+      const installation = await cadenceInstallations.getByLocation(locationId);
       let api: GHLAPI | null = null;
       if (installation) {
         const token = await getValidAccessToken(installation.user_id, locationId);

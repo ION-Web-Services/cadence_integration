@@ -8,11 +8,13 @@ import { GHLAPI } from './ghl-api';
 import { contactDncState } from './consent';
 import type { DncDecision } from '@/types';
 
-// Tags are visibility outputs only — the decision engine never reads them
-export const DNC_TAG_USHEALTH = 'DNC-USHEALTH';
-export const DNC_TAG_NATIONAL = 'DNC-NATIONAL';
-export const TAG_REPLY_WINDOW = 'DNC-REPLY-WINDOW';
-export const TAG_OPTIN_CONFIRMED = 'DNC-OPTIN-CONFIRMED';
+// Tags are visibility outputs only — the decision engine never reads them.
+// GHL normalizes all tags to lowercase on storage, so define and compare
+// them lowercase everywhere.
+export const DNC_TAG_USHEALTH = 'dnc-ushealth';
+export const DNC_TAG_NATIONAL = 'dnc-national';
+export const TAG_REPLY_WINDOW = 'dnc-reply-window';
+export const TAG_OPTIN_CONFIRMED = 'dnc-optin-confirmed';
 
 export function tagsForDncResult(result: { isBlacklist: boolean; isNationalDnc: boolean }): string[] {
   const tags: string[] = [];
@@ -68,9 +70,11 @@ export async function applyDecision(
   try {
     const contact = await fetchContact(ghlApi, contactId);
     const existingTags = contact?.tags || [];
-    const mergedTags = [...new Set([...existingTags, ...addTags])].filter(
-      (tag) => !removeTags.includes(tag)
-    );
+    // Case-insensitive merge: GHL lowercases tags, but old data may vary
+    const removeSet = new Set(removeTags.map((tag) => tag.toLowerCase()));
+    const mergedTags = [
+      ...new Set([...existingTags, ...addTags].map((tag) => tag.toLowerCase())),
+    ].filter((tag) => !removeSet.has(tag));
 
     const dndMessage = 'DNC - Do Not Contact';
     const response = await ghlApi.makeRequest({

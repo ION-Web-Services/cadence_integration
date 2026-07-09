@@ -67,6 +67,54 @@ export const cadenceInstallations = {
     }
   },
 
+  // Get the active installation for a location (webhooks are keyed by location)
+  async getByLocation(locationId: string): Promise<GHLInstallation | null> {
+    const { data, error } = await supabaseAdmin
+      .from(CADENCE_INSTALLATIONS_TABLE)
+      .select('*')
+      .eq('location_id', locationId)
+      .eq('is_active', true)
+      .order('installed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching installation by location:', error);
+      return null;
+    }
+    return data;
+  },
+
+  // Atomically claim the right to refresh this installation's token.
+  // Returns true for exactly one concurrent caller; a claim older than 30s
+  // is considered stale (crashed refresher) and can be taken over.
+  async claimRefresh(installationId: string): Promise<boolean> {
+    const staleCutoff = new Date(Date.now() - 30 * 1000).toISOString();
+    const { data, error } = await supabaseAdmin
+      .from(CADENCE_INSTALLATIONS_TABLE)
+      .update({ refresh_claimed_at: new Date().toISOString() })
+      .eq('id', installationId)
+      .or(`refresh_claimed_at.is.null,refresh_claimed_at.lt.${staleCutoff}`)
+      .select('id');
+
+    if (error) {
+      console.error('Error claiming token refresh:', error);
+      return false;
+    }
+    return (data?.length || 0) > 0;
+  },
+
+  async releaseRefresh(installationId: string): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from(CADENCE_INSTALLATIONS_TABLE)
+      .update({ refresh_claimed_at: null })
+      .eq('id', installationId);
+
+    if (error) {
+      console.error('Error releasing token refresh claim:', error);
+    }
+  },
+
   // Update tokens for an installation
   async updateTokens(userId: string, locationId: string, tokens: {
     access_token: string;

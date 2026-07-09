@@ -93,8 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // Step 1: Get installation from Supabase to find the access token
-    const installations = await cadenceInstallations.getAll();
-    const installation = installations.find(i => i.location_id === locationId && i.is_active);
+    const installation = await cadenceInstallations.getByLocation(locationId);
 
     if (!installation) {
       console.error('No active installation found for location:', locationId);
@@ -642,7 +641,9 @@ async function handleStandardCheck(
   }
 
   // Already fully tagged and no window in play: nothing to do
-  const alreadyTagged = existingTags.includes(DNC_TAG_USHEALTH) && existingTags.includes(DNC_TAG_NATIONAL);
+  // (GHL stores tags lowercase; compare case-insensitively)
+  const normalizedTags = existingTags.map(t => t.toLowerCase());
+  const alreadyTagged = normalizedTags.includes(DNC_TAG_USHEALTH) && normalizedTags.includes(DNC_TAG_NATIONAL);
   if (alreadyTagged && !state.openWindow) {
     console.log(JSON.stringify({
       event: 'dnc_check',

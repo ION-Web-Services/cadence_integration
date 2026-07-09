@@ -48,14 +48,22 @@ export async function getValidAccessToken(userId: string, locationId: string): P
   }
 }
 
-// Refresh an access token
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Refresh an access token.
+//
+// GHL rotates refresh tokens: the first refresh invalidates the old token,
+// so a second concurrent refresh with the same token gets invalid_grant and
+// can permanently kill the installation. Only one caller may refresh at a
+// time (claimRefresh); everyone else waits for the winner's result.
 export async function refreshAccessToken(userId: string, locationId: string): Promise<TokenRefreshResult> {
   try {
     log('Starting token refresh', { userId, locationId });
-    
-    // Get current installation
+
     const installation = await cadenceInstallations.getByUserAndLocation(userId, locationId);
-    
+
     if (!installation) {
       return {
         success: false,
@@ -63,47 +71,79 @@ export async function refreshAccessToken(userId: string, locationId: string): Pr
       };
     }
 
-    // Call GHL API to refresh token
-    const tokenResponse = await GHLAPI.refreshToken(installation.refresh_token);
-    
-    if (!tokenResponse) {
+    const claimed = await cadenceInstallations.claimRefresh(installation.id);
+
+    if (!claimed) {
+      // Another caller is refreshing right now — poll for its result
+      for (let attempt = 0; attempt < 5; attempt++) {
+        await sleep(1500);
+        const current = await cadenceInstallations.getByUserAndLocation(userId, locationId);
+        if (current && !isTokenExpiringSoon(current.expires_at)) {
+          log('Concurrent refresh completed, reusing its token', { userId, locationId });
+          return { success: true, installation: current };
+        }
+      }
       return {
         success: false,
-        error: 'Failed to refresh token with GHL API'
+        error: 'Timed out waiting for concurrent token refresh'
       };
     }
 
-    // Calculate new expiration
-    const expiresAt = calculateTokenExpiration(tokenResponse.expires_in);
-    
-    // Update in database
-    const updateSuccess = await cadenceInstallations.updateTokens(userId, locationId, {
-      access_token: tokenResponse.access_token,
-      refresh_token: tokenResponse.refresh_token,
-      expires_at: expiresAt
-    });
+    try {
+      // Re-read inside the claim: a refresh may have completed between our
+      // first read and winning the claim
+      const fresh = await cadenceInstallations.getByUserAndLocation(userId, locationId);
+      if (!fresh) {
+        return { success: false, error: 'Installation not found' };
+      }
+      if (!isTokenExpiringSoon(fresh.expires_at)) {
+        return { success: true, installation: fresh };
+      }
 
-    if (!updateSuccess) {
+      // Call GHL API to refresh token
+      const tokenResponse = await GHLAPI.refreshToken(fresh.refresh_token);
+
+      if (!tokenResponse) {
+        return {
+          success: false,
+          error: 'Failed to refresh token with GHL API'
+        };
+      }
+
+      // Calculate new expiration
+      const expiresAt = calculateTokenExpiration(tokenResponse.expires_in);
+
+      // Update in database
+      const updateSuccess = await cadenceInstallations.updateTokens(userId, locationId, {
+        access_token: tokenResponse.access_token,
+        refresh_token: tokenResponse.refresh_token,
+        expires_at: expiresAt
+      });
+
+      if (!updateSuccess) {
+        return {
+          success: false,
+          error: 'Failed to update tokens in database'
+        };
+      }
+
+      // Get updated installation
+      const updatedInstallation = await cadenceInstallations.getByUserAndLocation(userId, locationId);
+
+      log('Token refresh successful', {
+        userId,
+        locationId,
+        expiresAt,
+        newAccessToken: tokenResponse.access_token ? 'present' : 'missing'
+      });
+
       return {
-        success: false,
-        error: 'Failed to update tokens in database'
+        success: true,
+        installation: updatedInstallation || undefined
       };
+    } finally {
+      await cadenceInstallations.releaseRefresh(installation.id);
     }
-
-    // Get updated installation
-    const updatedInstallation = await cadenceInstallations.getByUserAndLocation(userId, locationId);
-    
-    log('Token refresh successful', { 
-      userId, 
-      locationId, 
-      expiresAt,
-      newAccessToken: tokenResponse.access_token ? 'present' : 'missing'
-    });
-
-    return {
-      success: true,
-      installation: updatedInstallation || undefined
-    };
   } catch (error) {
     logError('Error refreshing access token', error);
     return {
