@@ -146,7 +146,7 @@ export default function Home() {
               </svg>
               <div>
                 <h5 className="font-medium mb-1">Token Auto-Refresh</h5>
-                <p className="text-sm text-slate-400">OAuth tokens are refreshed automatically every hour — zero maintenance required.</p>
+                <p className="text-sm text-slate-400">OAuth tokens are refreshed automatically — zero maintenance required.</p>
               </div>
             </div>
             <div className="flex items-start gap-3 bg-slate-800/30 rounded-lg p-5">
