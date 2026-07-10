@@ -328,8 +328,8 @@ async function handleInboundMessage(
       contactId,
       phone,
       decision: {
-        smsBlocked: channel !== 'sms',
-        callBlocked: channel !== 'call',
+        smsBlocked: false,
+        callBlocked: true,
         reason: 'reply_window_open',
       },
       addTags: [...dncTags, TAG_REPLY_WINDOW],
@@ -395,15 +395,14 @@ async function sendOptinAndOpenWindow(
     return res.status(200).json({ success: false, error: 'optin_request_create_failed' });
   }
 
-  // SMS must be open to deliver the opt-in text; the contact's channel stays
-  // open for the agent's reply window
+  // SMS must be open to deliver the opt-in text and for the agent's reply window
   await applyDecision(ghlApi, {
     locationId,
     contactId,
     phone,
     decision: {
       smsBlocked: false,
-      callBlocked: channel !== 'call',
+      callBlocked: true,
       reason: 'optin_sending',
     },
     addTags: dncTags,
@@ -451,14 +450,14 @@ async function sendOptinAndOpenWindow(
     expires_at: hoursFromNow(DNC_CONFIG.replyWindowHours),
   });
 
-  // Narrow DND to just the contact's channel now that the opt-in is delivered
+  // Opt-in delivered — SMS stays open for the agent's one reply
   await applyDecision(ghlApi, {
     locationId,
     contactId,
     phone,
     decision: {
-      smsBlocked: channel !== 'sms',
-      callBlocked: channel !== 'call',
+      smsBlocked: false,
+      callBlocked: true,
       reason: 'reply_window_open',
     },
     addTags: [TAG_REPLY_WINDOW],
