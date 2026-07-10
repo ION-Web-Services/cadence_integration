@@ -112,7 +112,9 @@ A GHL (Go High Level) Marketplace app that intercepts outbound messages and chec
 
 ## Recent Changes (Jul 9, 2026) — Consent & Opt-In System (Phase 1)
 Full design in `DNC_CONSENT_PLAN.md`. Fixes "contact reached out but agent can't reply":
-- **InboundMessage webhook** now handled. A blocked contact texting/calling in triggers:
+- **InboundMessage webhook** now handled. **SMS only** — inbound calls are recorded as events
+  but trigger nothing (robocalls/wrong numbers would otherwise get texted). A blocked contact
+  texting in triggers:
   1. System sends a fixed opt-in request ("reply YES to confirm...") — template not agent-editable
   2. A single-use **reply window** opens (default 24h) on the channel the contact used, so the
      agent can send ONE custom reply; the OutboundMessage webhook consumes it and re-blocks

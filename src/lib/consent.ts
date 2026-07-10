@@ -44,8 +44,9 @@ export function normalizePhone(phone: string): string {
 // --- Reply classification (strict, small keyword sets) ---
 
 const AFFIRMATIVE_KEYWORDS = new Set(['yes', 'y', 'yeah', 'yep', 'yea', 'confirm']);
-// CTIA standard opt-out keywords
-const OPTOUT_KEYWORDS = new Set(['stop', 'stopall', 'unsubscribe', 'cancel', 'end', 'quit']);
+// CTIA standard opt-out keywords, plus 'no' because GHL's native compliance
+// footer appends "Reply NO to stop" to outbound messages
+const OPTOUT_KEYWORDS = new Set(['stop', 'stopall', 'unsubscribe', 'cancel', 'end', 'quit', 'no']);
 
 export function classifyReply(body?: string): 'affirmative' | 'optout' | 'other' {
   if (!body) return 'other';

@@ -246,6 +246,13 @@ async function handleInboundMessage(
     return res.status(200).json({ success: true, skipped: true, reason: 'duplicate_event' });
   }
 
+  // Only inbound SMS qualifies for the opt-in flow. Inbound calls include
+  // robocalls, wrong numbers, and pocket dials — texting those numbers is
+  // risky and often undeliverable. The event is recorded above for history.
+  if (channel !== 'sms') {
+    return res.status(200).json({ success: true, skipped: true, reason: 'inbound_call_no_action' });
+  }
+
   const state = await getConsentState(locationId, contactId, phone);
 
   // Keyword handling (SMS only)

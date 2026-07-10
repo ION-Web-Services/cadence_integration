@@ -29,6 +29,10 @@ At the same time, any fix must not give agents a lever to bypass company or nati
 
 ## The Opt-In Flow (real-world walkthrough)
 
+> **Update (Jul 10, 2026):** SMS only. Inbound calls are recorded as consent events but
+> trigger no opt-in and no reply window — live traffic showed calls include robocalls,
+> wrong numbers, and landlines that can't receive the opt-in SMS.
+
 1. A blocked contact texts an agent's GHL number → `InboundMessage` webhook.
 2. System checks: opted out? → stay blocked, done. Pending opt-in + affirmative reply? →
    confirm (step 5). Otherwise, if the contact is on a DNC list and no opt-in was sent
