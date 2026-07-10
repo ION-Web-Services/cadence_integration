@@ -149,10 +149,13 @@ export async function sendOptinMessage(
       // Identity line is optional; send without it rather than fail
     }
 
+    // No opt-out sentence here: GHL's compliance footer auto-appends
+    // "Reply NO to stop", and two opt-out instructions read as spam.
+    // 'no' and 'stop' are both honored by the keyword classifier.
     const intro = locationName ? `Hi, this is ${locationName}. ` : '';
     const message =
       `${intro}You reached out to us — reply YES to confirm you'd like to receive ` +
-      `calls and texts from this number. Reply STOP to opt out.`;
+      `calls and texts from this number.`;
 
     const response = await ghlApi.makeRequest({
       method: 'POST',

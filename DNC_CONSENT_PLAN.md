@@ -39,7 +39,10 @@ At the same time, any fix must not give agents a lever to bypass company or nati
    recently (cooldown), send ONE templated opt-in message:
 
    > Hi, this is {LocationName}. You reached out to us — reply YES to confirm
-   > you'd like to receive calls and texts from this number. Reply STOP to opt out.
+   > you'd like to receive calls and texts from this number.
+
+   GHL's compliance footer auto-appends "Reply NO to stop", so the message carries
+   exactly one opt-out instruction. Both NO and STOP are honored as opt-outs.
 
    Sent via GHL conversations API (`conversations/message.write` scope already granted).
 3. **Reply window opens.** After sending the opt-in request, DND stays lifted on the
